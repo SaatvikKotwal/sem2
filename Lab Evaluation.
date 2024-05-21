@@ -1,0 +1,123 @@
+//WAP to program to evaluate postfix,prefix and infix expression using stack.
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 100
+
+int stack[MAX];
+int top = -1;
+
+void push(int data) {
+    if (top < MAX - 1) {
+        stack[++top] = data;
+    } else {
+        printf("Stack overflow!\n");
+    }
+}
+
+int pop() {
+    if (top >= 0) {
+        return stack[top--];
+    } else {
+        printf("Stack underflow!\n");
+        return -1;
+    }
+}
+
+int evaluate_postfix(char *exp) {
+    int i, a, b;
+
+    for (i = 0; exp[i]!= '\0'; i++) {
+        if (isdigit(exp[i])) {
+            push(exp[i] - '0');
+        } else {
+            b = pop();
+            a = pop();
+            switch (exp[i]) {
+                case '+':
+                    push(a + b);
+                    break;
+                case '-':
+                    push(a - b);
+                    break;
+                case '*':
+                    push(a * b);
+                    break;
+                case '/':
+                    push(a / b);
+                    break;
+            }
+        }
+    }
+
+    return pop();
+}
+
+int evaluate_prefix(char *exp) {
+    int i, a, b;
+
+    for (i = strlen(exp) - 1; i >= 0; i--) {
+        if (isdigit(exp[i])) {
+            push(exp[i] - '0');
+        } else {
+            a = pop();
+            b = pop();
+            switch (exp[i]) {
+                case '+':
+                    push(a + b);
+                    break;
+                case '-':
+                    push(a - b);
+                    break;
+                case '*':
+                    push(a * b);
+                    break;
+                case '/':
+                    push(a / b);
+                    break;
+            }
+        }
+    }
+
+    return pop();
+}
+
+int evaluate_infix(char *exp) {
+    int i, a, b, j, k;
+    char *postfix = (char *)malloc(strlen(exp) + 1);
+
+    for (i = 0, j = 0; exp[i]!= '\0'; i++) {
+        if (isdigit(exp[i])) {
+            postfix[j++] = exp[i];
+        } else {
+            k = j - 1;
+            while (k >= 0 && isdigit(postfix[k])) {
+                k--;
+            }
+            postfix[k++] = exp[i];
+            j = k;
+        }
+    }
+
+    postfix[j] = '\0';
+
+    return evaluate_postfix(postfix);
+}
+
+int main() {
+    char postfix[] = "123*+";
+    char prefix[] = "+12*3";
+    char infix[] = "1 + 2 * 3";
+
+    printf("Postfix expression: %s\n", postfix);
+    printf("Result: %d\n", evaluate_postfix(postfix));
+
+    printf("Prefix expression: %s\n", prefix);
+    printf("Result: %d\n", evaluate_prefix(prefix));
+
+    printf("Infix expression: %s\n", infix);
+    printf("Result: %d\n", evaluate_infix(infix));
+
+    return 0;
+}
